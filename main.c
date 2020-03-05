@@ -24,6 +24,12 @@ int compI(void* a, void* b){
 	else if(*(int*)a == *(int*)b) return 0;
 	else return 1;
 }
+
+int compC(void* a, void* b){
+	if(*(char*)a > *(char*)b) return -1;
+	else if(*(char*)a == *(char*)b) return 0;
+	else return 1;
+}
 //TODO: make more option of what we want to add or alternatively add more functions
 //NAAAAH just remove the int from there and replace it with void * val and then play with it ;)
 void addI(List* x, void * val){
@@ -123,7 +129,6 @@ void del_all(List * L){
 
 //TODO: make an option of what we want to print ;)
 void print_u(List* L, char type){
-	
 	Node * top = L->list;
 	if (type == 'i'){
 		printf("Printing the integer list:\n");	
@@ -131,8 +136,15 @@ void print_u(List* L, char type){
 			printf("%i, ", *(int*)(top->data));
 			top = top->next;
 		}
-		printf("\nFinished printing.\n\n");
-	}	
+	}
+	else if(type == 'c'){
+		printf("Printing the character list:\n");
+		while(top!=NULL){
+			printf("%c, ", *(char*)(top->data));
+			top = top->next;
+		}
+	}
+	printf("\nFinished printing.\n\n");
 }
 
 char getOneToken(){
@@ -194,7 +206,7 @@ void chooseOption(List* L, char token){
 //TODO: make a small program that enables us to do some fancy stuff with this queue
 void main(void){
 	List *L = (List*)malloc(sizeof(List));
-	L->cmp = compI;
+	L->cmp = compC;
 	L->list = NULL;
 	/* char buffor = 'a';
 	printf("Welcome to the great application, which uses Jakub Belter's implementation of special sorted 2-way lists.\n");
@@ -212,20 +224,20 @@ void main(void){
 		chooseOption(L,buffor);
 		
 	} */
-	void * a = malloc(sizeof(int));
-	void * b = malloc(sizeof(int));
-	void * c = malloc(sizeof(int));
-	void * d = malloc(sizeof(int));
-	*(int*)a = 1;
-	*(int*)b = 2;
-	*(int*)c = 5;
-	*(int*)d = 3;
+	void * a = malloc(sizeof(char));
+	void * b = malloc(sizeof(char));
+	void * c = malloc(sizeof(char));
+	void * d = malloc(sizeof(char));
+	*(char*)a = 'c';
+	*(char*)b = 'b';
+	*(char*)c = 'g';
+	*(char*)d = 'c';
 	addI(L,a);
 	addI(L,b);
 	addI(L,c);
 	addI(L,d);
-	print_u(L,'i');
+	print_u(L,'c');
 	del_all(L);
-	print_u(L,'i');
+	print_u(L,'c');
 	free(L);
 }
