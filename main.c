@@ -37,37 +37,37 @@ void addI(List* x, int val){
 	}
 	else{
 		Node * top = x->list;
-		
-		while(top->next != NULL){
-			//compI returns -1 or 0 if first element is bigger or equal to the second element. 1 Otherwise
-			if(compI(top->data, tmp->data) == -1 ||compI(top->data, tmp->data) == 0 ){
-				top = top->next;
+		while (top!=NULL){
+			if(x->cmp(top->data,tmp->data) == -1 || x->cmp(top->data,tmp->data) == 0){
+				if(top->next == NULL){
+					top->next = tmp;
+					tmp->prev = top;
+					return;
+				}
+				else{
+					top = top->next;
+				}
+			}
+			else if (x->cmp(top->data,tmp->data) == 1){
+				if(top->prev == NULL){
+					x->list = tmp;
+					tmp->next = top;
+					top->prev = tmp;
+					return;
+				}
+				else
+				{
+					tmp->prev = top->prev;
+					top->prev = tmp;
+					tmp->prev->next = tmp;
+					tmp->next = top;
+					return;
+				}	
 			}
 			else{
-				Node * prevtop = top->prev;
-				prevtop->next = tmp;
-				top->prev = tmp;
-				tmp->next = top;
-				tmp->prev = prevtop;
-				return;
-			}		
+				printf("\nThere is an error in return vvalue of comparator function. Please make sure the values are exactly {-1,0,1}\n");
+			}
 		}
-		if(compI(top->data, tmp->data) == -1 ||compI(top->data, tmp->data) == 0 ){
-			top->next = tmp;
-			tmp->prev = top;
-			return;
-		}
-		else{
-			//We don't really care which object has who, the most important thing is that they are sorted
-			int *swap = top->data;
-			top->data = tmp->data;
-			tmp->data = swap;
-			top->next = tmp;
-			tmp->prev = top;
-			return;
-		}
-		
-		
 	}
 }
 
@@ -197,7 +197,7 @@ void main(void){
 	List *L = (List*)malloc(sizeof(List));
 	L->cmp = compI;
 	L->list = NULL;
-	char buffor = 'a';
+	/* char buffor = 'a';
 	printf("Welcome to the great application, which uses Jakub Belter's implementation of special sorted 2-way lists.\n");
 	printf("First you will specify the command that you want to use. You will see the prompt that helps you decide the command\n");
 	printf("Then you might be asked to specify more parameters if needed.\n");
@@ -212,7 +212,15 @@ void main(void){
 		}
 		chooseOption(L,buffor);
 		
-	}
+	} */
+	printf("xd");
+	addI(L,1);
+	addI(L,2);
+	addI(L,3);
+	addI(L,7);
+	addI(L,2);
+	addI(L,0);
+	print_u(L,'i');
 	del_all(L);
 	free(L);
 }
