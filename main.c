@@ -85,6 +85,7 @@ void del(List * L, int n){
 	//Now we free this memory hue hue
 	//Also here we would have to free our void structure
 	if(top == NULL){
+		printf("\nTrying to delete element that is not in the list!");
 		//Something is clearly wrong
 		return;
 	}
@@ -99,6 +100,7 @@ void del(List * L, int n){
 	}
 	else if (next == NULL){
 		prev->next = NULL;
+		top->prev = NULL;
 		free(top->data);
 		free(top);
 		return;
@@ -144,6 +146,10 @@ void print_u(List* L, char type){
 			top = top->next;
 		}
 	}
+	else{
+		printf("\nError: there is no print option specified for token %c.\n",type);
+		return;
+	}
 	printf("\nFinished printing.\n\n");
 }
 
@@ -172,16 +178,36 @@ int getOneInt(){
 
 void chooseOption(List* L, char token){
 	if(token =='p'){
-		print_u(L, 'i');
+		if(L->list != NULL){
+			printf("Please specify the data type you are using('i' - integer, 'c' - character): ");
+			token = getOneToken();
+			print_u(L,token);
+			return;
+		}
+		else
+		{
+			printf("Sorry! Your list seems to be empty!\n");
+		}
+		
 	}
 	else if(token == 'a'){
-		printf("Please specify the data type to be added('i' - integer): ");
+		printf("Please specify the data type to be added('i' - integer, 'c' - character): ");
 		token = getOneToken();
 		if (token == 'i'){
 			printf("\nPlease specify the integer to be added: ");
-			int * a = (int*)malloc(sizeof(int));
-			scanf(" %i",a);
-			addI(L,*a);
+			int * a = malloc(sizeof(int));
+			*a = getOneInt();
+			addI(L,a);
+			printf("\nSuccessfully added the integer %i.\n",*a);
+			return;
+		}
+		else if(token == 'c'){
+			printf("\nPlease specify the character to be added: ");
+			char * a = malloc(sizeof(char));
+			*a = getOneToken();
+			addI(L,a);
+			printf("\nSuccessfully added the character %c.\n",*a);
+			return;
 		}
 	}
 	else if (token == 'd'){
@@ -190,17 +216,28 @@ void chooseOption(List* L, char token){
 		a = getOneInt();
 		printf("\n");
 		del(L,a);
+		return;
 	}
 	else if (token == 'r')
 	{
+		printf("Deleting every element in the list.\n");
 		del_all(L);
+		return;
 	}
 	else if(token =='h'){
-		printf("Available options:\n'a' - adds new element (user defined type)\n'p' - prints the whole list\n");
+		printf("Available options:\n'a' - adds new element (user defined types)\n'p' - prints the whole list\n");
 		printf("'d' - removes one specified element from the list\n'r' - removes all elements from the list\n");
+		return;
 	}
-	
-	
+	else if(token =='q'){
+		return;
+	}
+	else
+	{
+		printf("Unknown token '%c', please check whether you didn't misspelled something.\n", token);
+		return;
+	}
+		
 }
 
 //TODO: make a small program that enables us to do some fancy stuff with this queue
@@ -208,36 +245,18 @@ void main(void){
 	List *L = (List*)malloc(sizeof(List));
 	L->cmp = compC;
 	L->list = NULL;
-	/* char buffor = 'a';
+	char buffor = 'a';
 	printf("Welcome to the great application, which uses Jakub Belter's implementation of special sorted 2-way lists.\n");
 	printf("First you will specify the command that you want to use. You will see the prompt that helps you decide the command\n");
 	printf("Then you might be asked to specify more parameters if needed.\n");
-	printf("To quit please enter 'q'\n\n");
+	printf("To quit please enter 'q'. For help enter 'h'.\n\n");
 	while (buffor != 'q')
 	{
 		printf("Please enter command: ");
 		buffor = getOneToken();
 		printf("\n");
-		if (buffor == 'a'){
-			int a = rand();
-		}
 		chooseOption(L,buffor);
 		
-	} */
-	void * a = malloc(sizeof(char));
-	void * b = malloc(sizeof(char));
-	void * c = malloc(sizeof(char));
-	void * d = malloc(sizeof(char));
-	*(char*)a = 'c';
-	*(char*)b = 'b';
-	*(char*)c = 'g';
-	*(char*)d = 'c';
-	addI(L,a);
-	addI(L,b);
-	addI(L,c);
-	addI(L,d);
-	print_u(L,'c');
-	del_all(L);
-	print_u(L,'c');
-	free(L);
+	}
+	free(L); 
 }
