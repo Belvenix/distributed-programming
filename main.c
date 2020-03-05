@@ -139,19 +139,23 @@ void print_u(List* L, char type){
 char getOneToken(){
 	char line[256];
 	char ch;
-	
 	if (fgets(line, sizeof line, stdin) == NULL) {
         printf("Input error.\n");
-        exit('\n');
     }
-
     ch = line[0];
 	return ch;
 }
 
+// atoi takes the number that comes from the beggining of the line, hence when ew type '123abc'
+// it will return 123 without an error. However if we use abc123 it will return 'error' which is
+// by default (int)0
 int getOneInt(){
-	char ch = getOneToken();
-	int ret = ch - '0';
+	char line[256];
+	int ret;
+	if (fgets(line, sizeof line, stdin) == NULL) {
+        printf("Input error.\n");
+    }
+	ret = atoi(line);
 	return ret;
 }
 
