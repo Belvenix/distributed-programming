@@ -26,10 +26,9 @@ int compI(void* a, void* b){
 }
 //TODO: make more option of what we want to add or alternatively add more functions
 //NAAAAH just remove the int from there and replace it with void * val and then play with it ;)
-void addI(List* x, int val){
+void addI(List* x, void * val){
 	Node* tmp = (Node*)malloc(sizeof(Node));
-	tmp->data = malloc(sizeof(int));
-	*(int*)(tmp->data) = val;
+	tmp->data = val;
 	tmp->next = NULL;
 	tmp->prev = NULL;
 	if (x->list == NULL){
@@ -132,7 +131,7 @@ void print_u(List* L, char type){
 			printf("%i, ", *(int*)(top->data));
 			top = top->next;
 		}
-		printf("\nFinished printing.\n");
+		printf("\nFinished printing.\n\n");
 	}	
 }
 
@@ -213,14 +212,20 @@ void main(void){
 		chooseOption(L,buffor);
 		
 	} */
-	printf("xd");
-	addI(L,1);
-	addI(L,2);
-	addI(L,3);
-	addI(L,7);
-	addI(L,2);
-	addI(L,0);
+	void * a = malloc(sizeof(int));
+	void * b = malloc(sizeof(int));
+	void * c = malloc(sizeof(int));
+	void * d = malloc(sizeof(int));
+	*(int*)a = 1;
+	*(int*)b = 2;
+	*(int*)c = 5;
+	*(int*)d = 3;
+	addI(L,a);
+	addI(L,b);
+	addI(L,c);
+	addI(L,d);
 	print_u(L,'i');
 	del_all(L);
+	print_u(L,'i');
 	free(L);
 }
