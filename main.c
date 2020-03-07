@@ -6,6 +6,7 @@
 #include <string.h>
 #include <malloc.h>
 
+typedef enum {true, false} bool;
 
 typedef struct Node{
 	void *data;
@@ -18,20 +19,66 @@ typedef struct List{
 	Node* list;
 } List;
 
-//TODO: make more comparison functions
+typedef struct Data
+{
+	int a;
+	char b;
+	bool c;
+} Data;
+
+
+//Comparison function for integer type
 int compI(void* a, void* b){
 	if(*(int*)a > *(int*)b) return -1;
 	else if(*(int*)a == *(int*)b) return 0;
 	else return 1;
 }
 
+//Comparison function for character type
 int compC(void* a, void* b){
 	if(*(char*)a > *(char*)b) return -1;
 	else if(*(char*)a == *(char*)b) return 0;
 	else return 1;
 }
-//TODO: make more option of what we want to add or alternatively add more functions
-//NAAAAH just remove the int from there and replace it with void * val and then play with it ;)
+
+//Comparison function for 'struct Data' type
+int compD(void* a, void* b){
+	Data c = *(Data*) a;
+	Data d = *(Data*) b;
+	if (c.a > d.a){
+		if(c.c != d.c){
+			return -1;
+		}
+		else{
+			return 1;
+		}
+	}
+	else if (c.a == d.a){
+		if (c.b > d.b){
+			return -1;
+		}
+		else if(c.b == d.b){
+			return 0;
+		}
+		else{
+			return 1;
+		}
+		
+		
+	}
+	else{
+		if(c.c != d.c){
+			return 1;
+		}
+		else{
+			return -1;
+		}
+	}
+	
+	
+}
+
+//function that adds one element to the List. It doesn't need to know the type of the val
 void addI(List* x, void * val){
 	Node* tmp = (Node*)malloc(sizeof(Node));
 	tmp->data = val;
@@ -76,6 +123,7 @@ void addI(List* x, void * val){
 	}
 }
 
+//function removes only one element of the list at n location (starts from 1 from the beggining of the list)
 void del(List * L, int n){
 	Node * top = L->list;
 	for (int i = 1; top != NULL && i < n; i++)
@@ -85,7 +133,7 @@ void del(List * L, int n){
 	//Now we free this memory hue hue
 	//Also here we would have to free our void structure
 	if(top == NULL){
-		printf("\nTrying to delete element that is not in the list!");
+		printf("Trying to delete element that is not in the list!\n");
 		//Something is clearly wrong
 		return;
 	}
@@ -114,6 +162,7 @@ void del(List * L, int n){
 	}
 }
 
+//function clears whole L->list. Removes every element.
 void del_all(List * L){
 	Node * top = L->list;
 	Node * tmp = L->list;
@@ -129,7 +178,7 @@ void del_all(List * L){
 	L->list = NULL;
 }
 
-//TODO: make an option of what we want to print ;)
+//function which prints the list according to specified type of variable
 void print_u(List* L, char type){
 	Node * top = L->list;
 	if (type == 'i'){
@@ -146,13 +195,21 @@ void print_u(List* L, char type){
 			top = top->next;
 		}
 	}
+	else if(type == 'd'){
+		printf("Printing the Data type list:\n");
+		while(top!=NULL){
+			printf("(%i; %c; ", (*(Data*)(top->data)).a,(*(Data*)(top->data)).b);
+			printf("%s), ", (*(Data*)(top->data)).c ? "true" : "false");
+			top = top->next;
+		}
+	}
 	else{
-		printf("\nError: there is no print option specified for token %c.\n",type);
+		printf("\nError: there is no print option specified for type %c.\n",type);
 		return;
 	}
 	printf("\nFinished printing.\n\n");
 }
-
+//function returns ONE char token without trailing white space 
 char getOneToken(){
 	char line[256];
 	char ch;
@@ -163,25 +220,30 @@ char getOneToken(){
 	return ch;
 }
 
-// atoi takes the number that comes from the beggining of the line, hence when ew type '123abc'
-// it will return 123 without an error. However if we use abc123 it will return 'error' which is
-// by default (int)0
+//function returns an integer from input without trailing white space
 int getOneInt(){
 	char line[256];
 	int ret;
 	if (fgets(line, sizeof line, stdin) == NULL) {
         printf("Input error.\n");
     }
+	// atoi takes the number that comes from the beggining of the line, hence when ew type '123abc'
+	// it will return 123 without an error. However if we use abc123 it will return 'error' which is
+	// by default (int)0
 	ret = atoi(line);
 	return ret;
 }
-
-void chooseOption(List* L, char token){
+/*
+This function is responsible for all of the application logic. We can add more tokens - options to our program
+As well as our own varType that can be added to 2-way function.
+L is a list with its comparison function L->cmp(void*,void*) and it's list element L->list which points to Node struct
+which is a struct (void*,Node*,Node*)
+token is our option and varType is our variable type we use in our list.
+*/
+void chooseOption(List* L, char token, char *varType){
 	if(token =='p'){
 		if(L->list != NULL){
-			printf("Please specify the data type you are using('i' - integer, 'c' - character): ");
-			token = getOneToken();
-			print_u(L,token);
+			print_u(L, *varType);
 			return;
 		}
 		else
@@ -191,9 +253,9 @@ void chooseOption(List* L, char token){
 		
 	}
 	else if(token == 'a'){
-		printf("Please specify the data type to be added('i' - integer, 'c' - character): ");
-		token = getOneToken();
-		if (token == 'i'){
+		if (*varType == 'i'){
+			//Make sure we have a good comparison function
+			L->cmp = compI;
 			printf("\nPlease specify the integer to be added: ");
 			int * a = malloc(sizeof(int));
 			*a = getOneInt();
@@ -201,14 +263,48 @@ void chooseOption(List* L, char token){
 			printf("\nSuccessfully added the integer %i.\n",*a);
 			return;
 		}
-		else if(token == 'c'){
+		else if(*varType == 'c'){
+			//Make sure we have a good comparison function
+			L->cmp = compC;
 			printf("\nPlease specify the character to be added: ");
 			char * a = malloc(sizeof(char));
 			*a = getOneToken();
 			addI(L,a);
-			printf("\nSuccessfully added the character %c.\n",*a);
+			printf("\nSuccessfully added the character '%c'.\n",*a);
 			return;
 		}
+		else if(*varType == 'd'){
+			//Make sure we have a good comparison function
+			L->cmp = compD;
+			printf("\nPlease specify the Data int to be added: ");
+			Data * a = malloc(sizeof(Data));
+			a->a = getOneInt();
+			printf("\nPlease specify the Data char to be added: ");
+			a->b = getOneToken();
+			while (token != 't' && token != 'f'){
+				printf("\nPlease specify the Data bool to be added (t - true, f - false): ");
+				token = getOneToken();
+			}
+			a->c = (token == 't') ? true : false;
+			addI(L,a);
+			printf("\nSuccessfully added the Data (a = %i, b = '%c', c = %s).\n",a->a,a->b,((a->c == 0) ? "true" : "false"));
+			return;
+		}
+		else if(*varType == '0'){
+			printf("Please specify the data type to be added('i' - integer, 'c' - character, 'd' - Data struct): ");
+			*varType = getOneToken();
+			chooseOption(L, token, varType);
+			return;
+		}
+		else{
+			// If we specify wrong varType we get this message and we go back to the choice
+			// WARNING it is possible to overflow if we keep doing it however the app looks simpler
+			printf("Unknown data type '%c', please check whether you didn't misspelled something.\n", token);
+			*varType = '0';
+			chooseOption(L, token, varType);
+			return;
+		}
+		
 	}
 	else if (token == 'd'){
 		printf("Please specify which element you want to delete (starts from 1): ");
@@ -218,10 +314,10 @@ void chooseOption(List* L, char token){
 		del(L,a);
 		return;
 	}
-	else if (token == 'r')
-	{
+	else if (token == 'r'){
 		printf("Deleting every element in the list.\n");
 		del_all(L);
+		*varType = '0';
 		return;
 	}
 	else if(token =='h'){
@@ -232,8 +328,7 @@ void chooseOption(List* L, char token){
 	else if(token =='q'){
 		return;
 	}
-	else
-	{
+	else{
 		printf("Unknown token '%c', please check whether you didn't misspelled something.\n", token);
 		return;
 	}
@@ -243,9 +338,15 @@ void chooseOption(List* L, char token){
 //TODO: make a small program that enables us to do some fancy stuff with this queue
 void main(void){
 	List *L = (List*)malloc(sizeof(List));
-	L->cmp = compC;
+	L->cmp = NULL;
 	L->list = NULL;
 	char buffor = 'a';
+	//This represents type of data we will have inside the list
+	//If this is 0 then we have no type9
+	// 'i' - means integer
+	// 'c' - means char
+	char *varType = (char*)malloc(sizeof(char));
+	*varType = '0';
 	printf("Welcome to the great application, which uses Jakub Belter's implementation of special sorted 2-way lists.\n");
 	printf("First you will specify the command that you want to use. You will see the prompt that helps you decide the command\n");
 	printf("Then you might be asked to specify more parameters if needed.\n");
@@ -255,8 +356,8 @@ void main(void){
 		printf("Please enter command: ");
 		buffor = getOneToken();
 		printf("\n");
-		chooseOption(L,buffor);
-		
+		chooseOption(L, buffor, varType);		
 	}
+	free(varType);
 	free(L); 
 }
