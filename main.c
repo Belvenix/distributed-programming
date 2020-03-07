@@ -6,6 +6,8 @@
 #include <string.h>
 #include <malloc.h>
 
+#define LINE_SIZE 256
+
 typedef enum {true, false} bool;
 
 typedef struct Node{
@@ -15,7 +17,7 @@ typedef struct Node{
 } Node;
 
 typedef struct List{
-	int (*cmp)(void*,void*);
+	int (*cmp)(const void* const a, const void* const b);
 	Node* list;
 } List;
 
@@ -28,21 +30,21 @@ typedef struct Data
 
 
 //Comparison function for integer type
-int compI(void* a, void* b){
+int compI(const void* const a, const void* const b){
 	if(*(int*)a > *(int*)b) return -1;
 	else if(*(int*)a == *(int*)b) return 0;
 	else return 1;
 }
 
 //Comparison function for character type
-int compC(void* a, void* b){
+int compC(const void* const a, const void* const b){
 	if(*(char*)a > *(char*)b) return -1;
 	else if(*(char*)a == *(char*)b) return 0;
 	else return 1;
 }
 
 //Comparison function for 'struct Data' type
-int compD(void* a, void* b){
+int compD(const void* const a, const void* const b){
 	Data c = *(Data*) a;
 	Data d = *(Data*) b;
 	if (c.a > d.a){
@@ -76,6 +78,11 @@ int compD(void* a, void* b){
 	}
 	
 	
+}
+
+//Comparison function for character pointer (string) type
+int compS(const void* const a, const void* const b){
+	return strcmp((char*)a,(char*)b);
 }
 
 //function that adds one element to the List. It doesn't need to know the type of the val
@@ -203,26 +210,40 @@ void print_u(List* L, char type){
 			top = top->next;
 		}
 	}
+	else if(type == 's'){
+		printf("Printing the string list:\n");
+		while(top!=NULL){
+			printf("'%s', ",(char*)(top->data));
+			top = top->next;
+		}
+	}
 	else{
 		printf("\nError: there is no print option specified for type %c.\n",type);
 		return;
 	}
 	printf("\nFinished printing.\n\n");
 }
-//function returns ONE char token without trailing white space 
-char getOneToken(){
-	char line[256];
-	char ch;
+
+//function returns string from input (maximum 255 characters)
+//it needs the pointer to variable to make sure it gets the data
+char * getOneLine(char * line){
 	if (fgets(line, sizeof line, stdin) == NULL) {
         printf("Input error.\n");
     }
-    ch = line[0];
+	return line;
+}
+
+//function returns ONE char token without trailing white space 
+char getOneToken(){
+	char line[LINE_SIZE];
+	char ch;
+    ch = (getOneLine(line))[0];
 	return ch;
 }
 
 //function returns an integer from input without trailing white space
 int getOneInt(){
-	char line[256];
+	char line[LINE_SIZE];
 	int ret;
 	if (fgets(line, sizeof line, stdin) == NULL) {
         printf("Input error.\n");
@@ -270,14 +291,14 @@ void chooseOption(List* L, char token, char *varType){
 			char * a = malloc(sizeof(char));
 			*a = getOneToken();
 			addI(L,a);
-			printf("\nSuccessfully added the character '%c'.\n",*a);
+			printf("\nSuccessfully added the character '%c'.\n", *a);
 			return;
 		}
 		else if(*varType == 'd'){
 			//Make sure we have a good comparison function
 			L->cmp = compD;
-			printf("\nPlease specify the Data int to be added: ");
 			Data * a = malloc(sizeof(Data));
+			printf("\nPlease specify the Data int to be added: ");
 			a->a = getOneInt();
 			printf("\nPlease specify the Data char to be added: ");
 			a->b = getOneToken();
@@ -290,8 +311,16 @@ void chooseOption(List* L, char token, char *varType){
 			printf("\nSuccessfully added the Data (a = %i, b = '%c', c = %s).\n",a->a,a->b,((a->c == 0) ? "true" : "false"));
 			return;
 		}
+		else if(*varType == 's'){
+			L->cmp = compS;
+			printf("Please specify the string to be added: ");
+			char * a = malloc(sizeof(char) * LINE_SIZE);
+			gets(a);
+			addI(L,a);
+			printf("\nSuccessfully added the string '%s'.\n", a);
+		}
 		else if(*varType == '0'){
-			printf("Please specify the data type to be added('i' - integer, 'c' - character, 'd' - Data struct): ");
+			printf("Please specify the data type to be added('i' - integer, 'c' - character, 'd' - Data struct, 's' - string): ");
 			*varType = getOneToken();
 			chooseOption(L, token, varType);
 			return;
@@ -342,9 +371,12 @@ void main(void){
 	L->list = NULL;
 	char buffor = 'a';
 	//This represents type of data we will have inside the list
-	//If this is 0 then we have no type9
+	//Values of *varType variable:
+	// '0' - means no type
 	// 'i' - means integer
 	// 'c' - means char
+	// 's' - means string
+	// 'd' - means struct Data defined above
 	char *varType = (char*)malloc(sizeof(char));
 	*varType = '0';
 	printf("Welcome to the great application, which uses Jakub Belter's implementation of special sorted 2-way lists.\n");
