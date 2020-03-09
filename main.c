@@ -10,19 +10,19 @@
 
 typedef enum {true, false} bool;
 
-typedef struct Node{
+typedef struct Node_t{
 	void *data;
-	struct Node *prev;
-	struct Node *next;
-} Node;
+	struct Node_t *prev;
+	struct Node_t *next;
+} Node_t;
 
 typedef struct List{
 	int (*cmp)(const void* const a, const void* const b);
-	Node* list;
+	void (*prnt)(Node_t *L);
+	Node_t* list;
 } List;
 
-typedef struct Data
-{
+typedef struct Data{
 	int a;
 	char b;
 	bool c;
@@ -87,7 +87,7 @@ int compS(const void* const a, const void* const b){
 
 //function that adds one element to the List. It doesn't need to know the type of the val
 void addI(List* x, void * val){
-	Node* tmp = (Node*)malloc(sizeof(Node));
+	Node_t* tmp = (Node_t*)malloc(sizeof(Node_t));
 	tmp->data = val;
 	tmp->next = NULL;
 	tmp->prev = NULL;
@@ -95,7 +95,7 @@ void addI(List* x, void * val){
 		x->list = tmp;	
 	}
 	else{
-		Node * top = x->list;
+		Node_t * top = x->list;
 		while (top!=NULL){
 			if(x->cmp(top->data,tmp->data) == -1 || x->cmp(top->data,tmp->data) == 0){
 				if(top->next == NULL){
@@ -132,9 +132,8 @@ void addI(List* x, void * val){
 
 //function removes only one element of the list at n location (starts from 1 from the beggining of the list)
 void del(List * L, int n){
-	Node * top = L->list;
-	for (int i = 1; top != NULL && i < n; i++)
-	{
+	Node_t * top = L->list;
+	for (int i = 1; top != NULL && i < n; i++){
 		top = top->next;
 	}
 	//Now we free this memory hue hue
@@ -145,8 +144,8 @@ void del(List * L, int n){
 		return;
 	}
 
-	Node * prev = top->prev;
-	Node * next = top->next;
+	Node_t * prev = top->prev;
+	Node_t * next = top->next;
 	if(prev == NULL){
 		if(next == NULL){
 			L->list = NULL;
@@ -176,8 +175,8 @@ void del(List * L, int n){
 
 //function clears whole L->list. Removes every element.
 void del_all(List * L){
-	Node * top = L->list;
-	Node * tmp = L->list;
+	Node_t * top = L->list;
+	Node_t * tmp = L->list;
 	while (top!=NULL)
 	{
 		tmp = top->next;
@@ -190,43 +189,38 @@ void del_all(List * L){
 	L->list = NULL;
 }
 
+void print_i(Node_t * top){	
+	printf("%i, ", *(int*)(top->data));
+}
+
+void print_c(Node_t * top){
+	printf("%c, ", *(char*)(top->data));
+}
+
+void print_d(Node_t * top){
+	printf("(%i; %c; ", (*(Data*)(top->data)).a,(*(Data*)(top->data)).b);
+	printf("%s), ", (*(Data*)(top->data)).c ? "true" : "false");
+}
+
+void print_s(Node_t * top){
+	printf("'%s', ",(char*)(top->data));
+}
+
 //function which prints the list according to specified type of variable
-void print_u(List* L, char type){
-	Node * top = L->list;
-	if (type == 'i'){
-		printf("Printing the integer list:\n");	
+void printA(List* L){
+	if (L->prnt != NULL){
+		Node_t * top = L->list;
+		printf("Printing the list:\n");
 		while (top != NULL){	
-			printf("%i, ", *(int*)(top->data));
+			L->prnt(top);	
 			top = top->next;
 		}
-	}
-	else if(type == 'c'){
-		printf("Printing the character list:\n");
-		while(top!=NULL){
-			printf("%c, ", *(char*)(top->data));
-			top = top->next;
-		}
-	}
-	else if(type == 'd'){
-		printf("Printing the Data type list:\n");
-		while(top!=NULL){
-			printf("(%i; %c; ", (*(Data*)(top->data)).a,(*(Data*)(top->data)).b);
-			printf("%s), ", (*(Data*)(top->data)).c ? "true" : "false");
-			top = top->next;
-		}
-	}
-	else if(type == 's'){
-		printf("Printing the string list:\n");
-		while(top!=NULL){
-			printf("'%s', ",(char*)(top->data));
-			top = top->next;
-		}
+		printf("\nFinished printing.\n\n");
 	}
 	else{
-		printf("\nError: there is no print option specified for type %c.\n",type);
+		printf("\nError: there is no print function assigned!");
 		return;
 	}
-	printf("\nFinished printing.\n\n");
 }
 
 //function returns string from input (maximum 255 characters)
@@ -259,17 +253,18 @@ int getOneInt(){
 	ret = atoi(line);
 	return ret;
 }
+
 /*
 This function is responsible for all of the application logic. We can add more tokens - options to our program
 As well as our own varType that can be added to 2-way function.
-L is a list with its comparison function L->cmp(void*,void*) and it's list element L->list which points to Node struct
-which is a struct (void*,Node*,Node*)
+L is a list with its comparison function L->cmp(void*,void*) and it's list element L->list which points to Node_t struct
+which is a struct (void*,Node_t*,Node_t*)
 token is our option and varType is our variable type we use in our list.
 */
 void chooseOption(List* L, char token, char *varType){
 	if(token =='p'){
 		if(L->list != NULL){
-			print_u(L, *varType);
+			printA(L);
 			return;
 		}
 		else
@@ -282,6 +277,7 @@ void chooseOption(List* L, char token, char *varType){
 		if (*varType == 'i'){
 			//Make sure we have a good comparison function
 			L->cmp = compI;
+			L->prnt = print_i;
 			printf("\nPlease specify the integer to be added: ");
 			int * a = malloc(sizeof(int));
 			*a = getOneInt();
@@ -292,6 +288,7 @@ void chooseOption(List* L, char token, char *varType){
 		else if(*varType == 'c'){
 			//Make sure we have a good comparison function
 			L->cmp = compC;
+			L->prnt = print_c;
 			printf("\nPlease specify the character to be added: ");
 			char * a = malloc(sizeof(char));
 			*a = getOneToken();
@@ -302,6 +299,7 @@ void chooseOption(List* L, char token, char *varType){
 		else if(*varType == 'd'){
 			//Make sure we have a good comparison function
 			L->cmp = compD;
+			L->prnt = print_d;
 			Data * a = malloc(sizeof(Data));
 			printf("\nPlease specify the Data int to be added: ");
 			a->a = getOneInt();
@@ -318,6 +316,7 @@ void chooseOption(List* L, char token, char *varType){
 		}
 		else if(*varType == 's'){
 			L->cmp = compS;
+			L->prnt = print_s;
 			printf("Please specify the string to be added: ");
 			char * a = malloc(sizeof(char) * LINE_SIZE);
 			gets(a);
@@ -346,11 +345,17 @@ void chooseOption(List* L, char token, char *varType){
 		a = getOneInt();
 		printf("\n");
 		del(L,a);
+		if (L->list == NULL){
+			L->cmp = NULL;
+			L->prnt = NULL;
+		}
 		return;
 	}
 	else if (token == 'r'){
 		printf("Deleting every element in the list.\n");
 		del_all(L);
+		L->cmp = NULL;
+		L->prnt = NULL;
 		*varType = '0';
 		return;
 	}
@@ -366,7 +371,6 @@ void chooseOption(List* L, char token, char *varType){
 		printf("Unknown token '%c', please check whether you didn't misspelled something.\n", token);
 		return;
 	}
-		
 }
 
 //TODO: make a small program that enables us to do some fancy stuff with this queue
@@ -374,6 +378,7 @@ void main(void){
 	List *L = (List*)malloc(sizeof(List));
 	L->cmp = NULL;
 	L->list = NULL;
+	L->prnt = NULL;
 	char buffor = 'a';
 	//This represents type of data we will have inside the list
 	//Values of *varType variable:
