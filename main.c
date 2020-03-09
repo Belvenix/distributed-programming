@@ -148,21 +148,26 @@ void del(List * L, int n){
 	Node * prev = top->prev;
 	Node * next = top->next;
 	if(prev == NULL){
-		L->list = top->next;
-		free(top->data);
-		free(top);
-		return;
-	}
-	else if (next == NULL){
-		prev->next = NULL;
-		top->prev = NULL;
+		if(next == NULL){
+			L->list = NULL;
+		}
+		else{
+			L->list = top->next;
+			L->list->prev = NULL;
+		}
 		free(top->data);
 		free(top);
 		return;
 	}
 	else{
-		prev->next = next;
-		next->prev = prev;
+		if(next == NULL){
+			prev->next = NULL;
+
+		}
+		else{
+			prev->next = next;
+			next->prev = prev;
+		}
 		free(top->data);
 		free(top);
 		return;
