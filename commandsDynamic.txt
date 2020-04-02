@@ -1,0 +1,19 @@
+#Dynamic
+
+rm /home/student/Public/bin/*
+
+gcc -c -Wall -fPIC -D_GNU_SOURCE list.c -o bin/list.o
+gcc -c -Wall -fPIC -D_GNU_SOURCE comp.c -o bin/comp.o
+gcc bin/list.o bin/comp.o -shared -o lib_listSorted.so
+gcc -c main.c -o bin/dynamic.o
+gcc bin/dynamic.o -L. -l_listSorted -o bin/dynamic.out
+ldd bin/dynamic.out
+export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:."
+./bin/dynamic.out
+
+#Windows
+gcc -c list.c -o bin/list.o
+gcc -c comp.c -o bin/comp.o
+gcc -shared -o bin/listSorted.dll bin/list.o bin/comp.o 
+gcc -c main.c -o bin/dynamic.o
+gcc bin/dynamic.o -L./bin/ -llistSorted -o bin/dynamic

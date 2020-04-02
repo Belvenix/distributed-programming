@@ -1,6 +1,7 @@
 //liste dwukierunkowa posortowana funkcja komparatora jest przekazywana przez wskaźnik
 //Napisz usun dodaj i wyswietl. stworz konsolowa aplikacje ktora bedziesz mogl to uzyc
 //wskaznik na poprzedni, na nastepny i na przechowywana dana, do tego dac typ danych
+
 #include "list.h"
 
 //function which prints the list according to specified type of variable
@@ -145,6 +146,7 @@ void chooseOption(List* L, char token, char *varType){
 		if (L->list == NULL){
 			L->cmp = NULL;
 			L->prnt = NULL;
+			*varType = '0';
 		}
 		return;
 	}
@@ -171,7 +173,7 @@ void chooseOption(List* L, char token, char *varType){
 }
 
 //TODO: make a small program that enables us to do some fancy stuff with this queue
-void main(void){
+int main(void){
 	List *L = (List*)malloc(sizeof(List));
 	L->cmp = NULL;
 	L->list = NULL;
@@ -197,6 +199,9 @@ void main(void){
 		printf("\n");
 		chooseOption(L, buffor, varType);		
 	}
+	//We need to delete everything from the list beforehand
+	chooseOption(L, 'r', varType);
 	free(varType);
 	free(L); 
+	return 1;
 }

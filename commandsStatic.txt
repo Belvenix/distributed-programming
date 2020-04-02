@@ -1,0 +1,11 @@
+#Static
+
+rm /home/student/Public/bin/*
+
+gcc -c list.c -o bin/list.o
+gcc -c comp.c -o bin/comp.o
+ar r bin/lib_listSorted.a bin/list.o bin/comp.o
+ar tv bin/lib_listSorted.a
+gcc -c main.c -o bin/static.o
+gcc bin/static.o bin/lib_listSorted.a -o bin/static.out
+./bin/static.out
