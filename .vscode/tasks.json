@@ -8,13 +8,48 @@
                 "-Wall",
                 "-g",
                 "${fileDirname}\\${fileBasenameNoExtension}.c",
-                "${fileDirname}\\list.c",
                 "-o",
-                "${fileDirname}\\bin\\${fileBasenameNoExtension}.exe"                
+                "${fileDirname}\\bin\\${fileBasenameNoExtension}.exe"
             ],
             "options": {
                 "cwd": "C:\\MinGW\\bin"
+            },
+            "group": {
+                "kind": "build",
+                "isDefault": true
             }
+        },
+        {
+            "type": "shell",
+            "label": "cl.exe build active file",
+            "command": "cl.exe",
+            "args": [
+                "/Zi",
+                "/EHsc",
+                "/Fe:",
+                "${fileDirname}\\${fileBasenameNoExtension}.exe",
+                "${file}"
+            ],
+            "problemMatcher": [
+                "$msCompile"
+            ],
+            "group": "build"
+        },
+        {
+            "type": "shell",
+            "label": "cl.exe build active file",
+            "command": "cl.exe",
+            "args": [
+                "/Zi",
+                "/EHsc",
+                "/Fe:",
+                "${fileDirname}\\${fileBasenameNoExtension}.exe",
+                "${file}"
+            ],
+            "problemMatcher": [
+                "$msCompile"
+            ],
+            "group": "build"
         }
     ],
     "version": "2.0.0"

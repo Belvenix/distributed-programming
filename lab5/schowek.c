@@ -63,6 +63,8 @@ boolean isBankNumber(char * buffer){
 //CCAAAAAAAABBBBBBBBBBBBBBBB
 //12345678901234567890123456
 
+
+
 //correct with spaces
 //CC AAAA AAAA BBBB BBBB BBBB BBBB
 //12 3456 7890 1234 5678 9012 3456
@@ -71,8 +73,7 @@ boolean isBankNumber(char * buffer){
 //CC AAAA AAAA BBBB BBBB BBBB BBBB
 //12 34g6 78f0 12e4 5e678 9012 6 r
 
-int main() 
-{
+int main() {
     // Allocate enough memory to save text in clipboard. 
     char * clipboardText = (char *) malloc(GetCpSize() + 1); 
     
