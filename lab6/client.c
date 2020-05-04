@@ -6,6 +6,9 @@
 
 #define BUFFER_SIZE 120
 
+
+void send_msg(SOCKET s, char* buf, int dlug, int dlug_login, char * arr, boolean debug_info);
+
 void main(){
     int dlug_login;
     const char* argv = "127.0.0.1";
@@ -16,8 +19,8 @@ void main(){
     WORD wersja;
     wersja = MAKEWORD (2 ,0);
     WSAStartup (wersja , & wsas );
+    char login[BUFFER_SIZE];
     {
-        char login[BUFFER_SIZE];
         printf("Witamy w kliencie SuperChatu! Najpierw prosimy o podanie swojego loginu:\n");
         fgets(login , BUFFER_SIZE, stdin );
         dlug_login = strlen (login);
@@ -47,20 +50,29 @@ void main(){
     int dlug;
     char buf [BUFFER_SIZE-dlug_login];
     printf ("\nJestem podlaczony do servera! Prosze wpisac KONIEC aby zakonczyc chat.\nJezeli chcecz wyjsc z chatu prosze wpisac WYCHODZE\n");
+    send_msg(s,login,dlug,dlug_login,arr, 0);
     for (;;)
     {
-        fgets (buf , BUFFER_SIZE-dlug_login, stdin );
-        dlug = strlen (buf); buf[dlug-1] = '\0';
-        char message [BUFFER_SIZE];
-        strcpy(message, arr);
-        strcat(message, buf);
-        message[dlug + dlug_login - 1] = '\0';
-        printf("Bufor ma: '%s', login ma: '%s', wiadomosc ma: '%s'\n", buf, arr, message);
-        send(s, message , dlug + dlug_login - 1, 0); 
+        fgets (buf , BUFFER_SIZE-dlug_login, stdin);
+        send_msg(s, buf, dlug, dlug_login, arr, 0);
         if( strcmp (buf , "KONIEC") == 0 || strcmp (buf , "WYCHODZE") == 0) break ;
     }
     free(arr);
 
     closesocket(s);
     WSACleanup();
+}
+
+void send_msg(SOCKET s, char* buf, int dlug, int dlug_login, char * arr, boolean debug_info){
+    
+    dlug = strlen (buf); buf[dlug-1] = '\0';
+    char message [BUFFER_SIZE];
+    strcpy(message, arr);
+    strcat(message, buf);
+    message[dlug + dlug_login - 1] = '\0';
+    if(debug_info == 1){
+        printf("Bufor ma: '%s', login ma: '%s', wiadomosc ma: '%s'\n", buf, arr, message);
+    }
+    send(s, message , dlug + dlug_login - 1, 0);
+    
 }
