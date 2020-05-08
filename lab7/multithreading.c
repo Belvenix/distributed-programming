@@ -1,6 +1,10 @@
-#include <pthread.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <math.h>
+#include <pthread.h>
+
+//In order to run it you need to use this command
+// gcc -pthread multithreading.c -o lab6 -lm 
 
 //--------------------------------------------------------------------------
 #pragma argsused
@@ -14,7 +18,7 @@ typedef struct dane_dla_watku{
 
 
 // deklaracja funkcji watku
-DWORD WINAPI funkcyjka (void * argumenty);
+void * funkcyjka (void * argumenty);
 double sinus(double x);
 
 //--------------------------------------------------------------------------
@@ -86,9 +90,6 @@ int main (int argc , char ** argv )
 
     //--------------------------FREE_SPACE--------------------------
 
-    for (int i = 0; i < nThreads; i++){
-        CloseHandle(wateczki[i]);
-    }
 
     free(dane);
     free(wateczki);
@@ -98,7 +99,7 @@ int main (int argc , char ** argv )
 
 void* funkcyjka(void * argumenty){
 
-    printf("Jestem w watku o id %x\n", GetCurrentThreadId());
+    //printf("Jestem w watku o id %x\n", GetCurrentThreadId());
 
     dane_dla_watku * moje_dane = (dane_dla_watku*) argumenty;
 
@@ -116,7 +117,7 @@ void* funkcyjka(void * argumenty){
         }
     }
     printf("Suma %f, Przedzial dolny %f, Przedzial gorny %f\n", moje_dane->sum, moje_dane->minRange, moje_dane->maxRange);
-    printf("Skonczylem pracowac w watku o id %x\n", GetCurrentThreadId());
+    //printf("Skonczylem pracowac w watku o id %x\n", GetCurrentThreadId());
 }
 
 double sinus(double x){
