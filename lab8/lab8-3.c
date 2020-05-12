@@ -23,12 +23,13 @@ void  third(int id, int debug){
 
   char string[MAX_BUFFER];
   f = open("test2", O_RDONLY);
+  read(f, &string, sizeof(string));
   if(debug > 0)
     printf("String to [%s]\n", string);
 
   char string2[MAX_BUFFER];
   change2(string, string2);
-  write(f, &string2, sizeof(string2));
+  //write(f, &string2, sizeof(string2));
   close(f);
 
   if(debug > 0)
@@ -42,5 +43,5 @@ void  third(int id, int debug){
 
 
 int  main(){
-  third(2,DEBUG);
+  third(2,NO_DEBUG);
 }

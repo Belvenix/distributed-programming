@@ -22,6 +22,6 @@ void  first(int id, int debug){
 }
 
 int  main(){
-  first(0,DEBUG);
+  first(0,NO_DEBUG);
   return 0;
 }

@@ -49,5 +49,5 @@ void  second(int id, int debug){
 }
 
 int  main(){
-  second(1,DEBUG);
+  second(1,NO_DEBUG);
 }
